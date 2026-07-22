@@ -9,6 +9,7 @@ import ParentDashboard from './pages/ParentDashboard';
 import PaymentPage from './pages/PaymentPage';
 import PaymentCallback from './pages/PaymentCallback';
 import AdminDashboard from './pages/AdminDashboard';
+import SetPassword from './pages/SetPassword';
 
 function ProtectedRoute({ role, children }) {
   const { user, profile, loading } = useAuth();
@@ -61,6 +62,7 @@ export default function App() {
             }
           />
           <Route path="/payment/callback" element={<PaymentCallback />} />
+          <Route path="/set-password" element={<SetPassword />} />
           <Route
             path="/admin"
             element={
