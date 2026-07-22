@@ -43,6 +43,19 @@ export default function ParentDashboard() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
+  async function handleRemoveChild(student) {
+    const confirmed = window.confirm(
+      `Remove ${student.first_name} ${student.surname}? This will also permanently delete their payment history and receipts.`
+    );
+    if (!confirmed) return;
+    const { error } = await supabase.from('students').delete().eq('id', student.id);
+    if (error) {
+      alert(`Could not remove this child: ${error.message}`);
+      return;
+    }
+    loadData();
+  }
+  
   async function handleAddChild(e) {
     e.preventDefault();
     setFormError('');
