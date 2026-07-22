@@ -105,10 +105,26 @@ export default function AdminDashboard() {
     }
   }
   async function handleRemoveAdmin(email) {
-    const confirmed = window.confirm(`Remove ${email} from the admin allowlist? If they haven't signed up yet, they'll just become a normal parent account instead.`);
+    const confirmed = window.confirm(`Remove admin access for ${email}? If they already have an account, they'll lose access immediately and become a normal parent account.`);
     if (!confirmed) return;
-    await supabase.from('admin_allowlist').delete().eq('email', email);
-    loadAll();
+    try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      const resp = await fetch('/.netlify/functions/remove-admin', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ email }),
+      });
+      const result = await resp.json();
+      if (!resp.ok) throw new Error(result.error || 'Could not remove admin access.');
+      loadAll();
+    } catch (err) {
+      alert(err.message);
+    }
   }
 
   function exportCSV() {
