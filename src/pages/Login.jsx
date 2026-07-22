@@ -38,7 +38,7 @@ export default function Login() {
           </div>
           <div className="field">
             <label htmlFor="password">Password</label>
-            <input id="password" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} />
+            <PasswordInput id="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
           </div>
           <button className="btn btn-primary btn-block" disabled={loading}>
             {loading ? <span className="spinner" /> : 'Log in'}
