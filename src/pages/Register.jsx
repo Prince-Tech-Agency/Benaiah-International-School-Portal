@@ -68,8 +68,8 @@ export default function Register() {
         {error && <div className="alert alert-error">{error}</div>}
         <form onSubmit={handleSubmit}>
           <div className="field">
-            <label htmlFor="fullName">Your full name</label>
-            <input id="fullName" required value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="e.g. Mrs. Ade Johnson" />
+            <label htmlFor="password">Password</label>
+            <PasswordInput id="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="At least 6 characters" required />
           </div>
           <div className="field">
             <label htmlFor="phone">Phone number</label>
