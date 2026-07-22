@@ -17,6 +17,11 @@ export default function AdminDashboard() {
   const [savingCategory, setSavingCategory] = useState(false);
   const [catError, setCatError] = useState('');
 
+  const [allowlist, setAllowlist] = useState([]);
+  const [newAdminEmail, setNewAdminEmail] = useState('');
+  const [savingAdmin, setSavingAdmin] = useState(false);
+  const [adminError, setAdminError] = useState('');
+
   async function loadAll() {
     setLoading(true);
     const { data: cats } = await supabase.from('payment_categories').select('*').order('created_at', { ascending: true });
@@ -27,6 +32,10 @@ export default function AdminDashboard() {
       .select('*, students(first_name, surname, class), payment_items(*), profiles(full_name, phone)')
       .order('created_at', { ascending: false });
     setPayments(pays || []);
+
+    const { data: allow } = await supabase.from('admin_allowlist').select('*').order('created_at', { ascending: false });
+    setAllowlist(allow || []);
+
     setLoading(false);
   }
 
@@ -61,6 +70,32 @@ export default function AdminDashboard() {
 
   async function toggleActive(cat) {
     await supabase.from('payment_categories').update({ is_active: !cat.is_active }).eq('id', cat.id);
+    loadAll();
+  }
+
+  async function handleAddAdmin(e) {
+    e.preventDefault();
+    setAdminError('');
+    const email = newAdminEmail.trim().toLowerCase();
+    if (!email || !email.includes('@')) {
+      setAdminError('Enter a valid email address.');
+      return;
+    }
+    setSavingAdmin(true);
+    const { error } = await supabase.from('admin_allowlist').insert({ email });
+    setSavingAdmin(false);
+    if (error) {
+      setAdminError(error.message);
+      return;
+    }
+    setNewAdminEmail('');
+    loadAll();
+  }
+
+  async function handleRemoveAdmin(email) {
+    const confirmed = window.confirm(`Remove ${email} from the admin allowlist? If they haven't signed up yet, they'll just become a normal parent account instead.`);
+    if (!confirmed) return;
+    await supabase.from('admin_allowlist').delete().eq('email', email);
     loadAll();
   }
 
@@ -103,6 +138,7 @@ export default function AdminDashboard() {
         <div style={{ display: 'flex', gap: 10, marginBottom: 28 }}>
           <button className={`btn ${tab === 'payments' ? 'btn-primary' : 'btn-ghost'} btn-sm`} onClick={() => setTab('payments')}>Payments</button>
           <button className={`btn ${tab === 'categories' ? 'btn-primary' : 'btn-ghost'} btn-sm`} onClick={() => setTab('categories')}>Payment categories</button>
+          <button className={`btn ${tab === 'admins' ? 'btn-primary' : 'btn-ghost'} btn-sm`} onClick={() => setTab('admins')}>Admin access</button>
         </div>
 
         {loading && <p>Loading…</p>}
@@ -219,6 +255,60 @@ export default function AdminDashboard() {
                         <td>{formatNaira(p.amount)}</td>
                         <td>{formatDate(p.paid_at || p.created_at)}</td>
                         <td><span className={statusBadgeClass(p.status)}>{p.status}</span></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          </>
+        )}
+
+        {!loading && tab === 'admins' && (
+          <>
+            <div className="card" style={{ marginBottom: 24 }}>
+              <h3>Grant admin access</h3>
+              <p style={{ marginBottom: 16 }}>
+                Add someone's email here before they sign up (or before they sign up again with this email) —
+                the moment that email registers on the site, it becomes an admin automatically. This does not
+                retroactively change someone who has already registered as a parent with that email; in that
+                case, ask them to re-register with a different email, or contact support to migrate the account.
+              </p>
+              {adminError && <div className="alert alert-error">{adminError}</div>}
+              <form onSubmit={handleAddAdmin} style={{ display: 'flex', gap: 10 }}>
+                <input
+                  type="email"
+                  value={newAdminEmail}
+                  onChange={(e) => setNewAdminEmail(e.target.value)}
+                  placeholder="e.g. bursar@benaiahschool.com"
+                  style={{ flex: 1 }}
+                />
+                <button className="btn btn-primary" disabled={savingAdmin}>
+                  {savingAdmin ? <span className="spinner" /> : 'Add'}
+                </button>
+              </form>
+            </div>
+
+            <div className="card" style={{ padding: 0 }}>
+              {allowlist.length === 0 ? (
+                <div className="empty-state">No emails on the allowlist yet.</div>
+              ) : (
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Email</th>
+                      <th>Added</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {allowlist.map((a) => (
+                      <tr key={a.email}>
+                        <td>{a.email}</td>
+                        <td>{formatDate(a.created_at)}</td>
+                        <td>
+                          <button className="btn btn-danger btn-sm" onClick={() => handleRemoveAdmin(a.email)}>Remove</button>
+                        </td>
                       </tr>
                     ))}
                   </tbody>
