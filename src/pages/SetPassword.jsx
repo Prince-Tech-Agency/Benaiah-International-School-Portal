@@ -57,11 +57,11 @@ export default function SetPassword() {
         <form onSubmit={handleSubmit}>
           <div className="field">
             <label htmlFor="password">New password</label>
-            <input id="password" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="At least 6 characters" />
+            <PasswordInput id="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="At least 6 characters" required />
           </div>
           <div className="field">
             <label htmlFor="confirm">Confirm password</label>
-            <input id="confirm" type="password" required value={confirm} onChange={(e) => setConfirm(e.target.value)} />
+            <PasswordInput id="confirm" value={confirm} onChange={(e) => setConfirm(e.target.value)} required />
           </div>
           <button className="btn btn-primary btn-block" disabled={loading}>
             {loading ? <span className="spinner" /> : 'Save password & continue'}
