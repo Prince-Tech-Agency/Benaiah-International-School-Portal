@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
 import Logo from '../components/Logo';
-
+import PasswordInput from '../components/PasswordInput';
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
