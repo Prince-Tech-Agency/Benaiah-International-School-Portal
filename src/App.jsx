@@ -28,13 +28,20 @@ function FullPageLoader() {
   );
 }
 
+function HomeRoute() {
+  const { user, profile, loading } = useAuth();
+  if (loading) return <FullPageLoader />;
+  if (user) return <Navigate to={profile?.role === 'admin' ? '/admin' : '/dashboard'} replace />;
+  return <Landing />;
+}
+
 export default function App() {
   return (
     <div className="page">
       <Navbar />
       <div style={{ flex: 1 }}>
         <Routes>
-          <Route path="/" element={<Landing />} />
+          <Route path="/" element={<HomeRoute />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route
