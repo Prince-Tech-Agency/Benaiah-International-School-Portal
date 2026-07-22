@@ -147,6 +147,13 @@ export default function ParentDashboard() {
               <h3 style={{ marginBottom: 4 }}>{s.first_name} {s.surname}</h3>
               <p style={{ marginBottom: 16 }}>Class: <strong>{s.class}</strong></p>
               <Link to={`/dashboard/pay/${s.id}`} className="btn btn-sand btn-block">Make a payment</Link>
+              <button
+                className="btn btn-ghost btn-sm btn-block"
+                style={{ marginTop: 8 }}
+                onClick={() => handleRemoveChild(s)}
+              >
+                Remove child
+              </button>
             </div>
           ))}
         </div>
