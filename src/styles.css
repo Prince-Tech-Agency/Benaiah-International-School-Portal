@@ -122,7 +122,14 @@ button, input, select, textarea { font-family: inherit; font-size: 1rem; }
 .field input:focus, .field select:focus, .field textarea:focus {
   outline: none; border-color: var(--palm-mid); box-shadow: 0 0 0 3px var(--palm-soft);
 }
-.field-hint { font-size: 0.8rem; color: var(--charcoal-soft); margin-top: 4px; }
+.password-field { position: relative; }
+.password-field input { padding-right: 44px; }
+.password-toggle {
+  position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+  background: none; border: none; cursor: pointer; padding: 4px;
+  color: var(--charcoal-soft); display: flex; align-items: center;
+}
+.password-toggle:hover { color: var(--palm-deep); }.field-hint { font-size: 0.8rem; color: var(--charcoal-soft); margin-top: 4px; }
 .field-error { font-size: 0.82rem; color: var(--rust); margin-top: 6px; }
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 @media (max-width: 640px) { .form-row { grid-template-columns: 1fr; } }
