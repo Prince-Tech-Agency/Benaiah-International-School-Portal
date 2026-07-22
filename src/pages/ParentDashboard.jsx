@@ -55,7 +55,7 @@ export default function ParentDashboard() {
     }
     loadData();
   }
-  
+
   async function handleAddChild(e) {
     e.preventDefault();
     setFormError('');
