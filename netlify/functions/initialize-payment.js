@@ -22,7 +22,7 @@ exports.handler = async (event) => {
       return { statusCode: 400, body: JSON.stringify({ error: 'Select a student and at least one payment category.' }) };
     }
 
-    // Confirm the student actually belongs to this parent.
+   // Confirm the student actually belongs to this parent.
     const { data: student, error: studentError } = await supabaseAdmin
       .from('students')
       .select('*')
@@ -30,6 +30,12 @@ exports.handler = async (event) => {
       .eq('parent_id', user.id)
       .single();
     if (studentError || !student) {
+      console.error('STUDENT LOOKUP DEBUG:', {
+        loggedInUserId: user.id,
+        loggedInUserEmail: user.email,
+        studentIdFromRequest: studentId,
+        studentError: studentError ? studentError.message : null,
+      });
       return { statusCode: 404, body: JSON.stringify({ error: 'Student not found on your account.' }) };
     }
 
