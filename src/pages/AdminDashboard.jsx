@@ -82,16 +82,28 @@ export default function AdminDashboard() {
       return;
     }
     setSavingAdmin(true);
-    const { error } = await supabase.from('admin_allowlist').insert({ email });
-    setSavingAdmin(false);
-    if (error) {
-      setAdminError(error.message);
-      return;
+    try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      const resp = await fetch('/.netlify/functions/invite-admin', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ email }),
+      });
+      const result = await resp.json();
+      if (!resp.ok) throw new Error(result.error || 'Could not send the invite.');
+      setNewAdminEmail('');
+      loadAll();
+    } catch (err) {
+      setAdminError(err.message);
+    } finally {
+      setSavingAdmin(false);
     }
-    setNewAdminEmail('');
-    loadAll();
   }
-
   async function handleRemoveAdmin(email) {
     const confirmed = window.confirm(`Remove ${email} from the admin allowlist? If they haven't signed up yet, they'll just become a normal parent account instead.`);
     if (!confirmed) return;
