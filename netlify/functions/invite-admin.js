@@ -36,6 +36,13 @@ exports.handler = async (event) => {
     });
 
     if (error) {
+      console.error('inviteUserByEmail raw error:', {
+        message: error.message,
+        status: error.status,
+        name: error.name,
+        code: error.code,
+        full: JSON.stringify(error, Object.getOwnPropertyNames(error)),
+      });
       // Most likely cause: this email already has an account (e.g. an existing
       // parent). We can't send a fresh invite to an existing user, so instead
       // just promote their existing profile directly.
@@ -48,9 +55,8 @@ exports.handler = async (event) => {
           body: JSON.stringify({ success: true, promotedExisting: true }),
         };
       }
-      throw new Error(error.message || 'Could not send the invitation email.');
+      throw new Error(error.message || error.status || 'Could not send the invitation email (see function logs for details).');
     }
-
     return { statusCode: 200, body: JSON.stringify({ success: true, userId: data.user.id }) };
   } catch (err) {
     console.error('invite-admin error:', err);
