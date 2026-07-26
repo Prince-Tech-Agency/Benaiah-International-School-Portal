@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
 import Logo from '../components/Logo';
+import PasswordInput from '../components/PasswordInput';
 
 export default function Register() {
   const [fullName, setFullName] = useState('');
@@ -68,8 +69,8 @@ export default function Register() {
         {error && <div className="alert alert-error">{error}</div>}
         <form onSubmit={handleSubmit}>
           <div className="field">
-            <label htmlFor="password">Password</label>
-            <PasswordInput id="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="At least 6 characters" required />
+            <label htmlFor="fullName">Your full name</label>
+            <input id="fullName" required value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="e.g. Mrs. Ade Johnson" />
           </div>
           <div className="field">
             <label htmlFor="phone">Phone number</label>
@@ -81,7 +82,7 @@ export default function Register() {
           </div>
           <div className="field">
             <label htmlFor="password">Password</label>
-            <input id="password" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="At least 6 characters" />
+            <PasswordInput id="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="At least 6 characters" required />
           </div>
           <button className="btn btn-primary btn-block" disabled={loading}>
             {loading ? <span className="spinner" /> : 'Create account'}
