@@ -297,7 +297,7 @@ export default function AdminDashboard() {
                     {filteredPayments.map((p) => (
                       <tr key={p.id}>
                         <td>{p.students?.first_name} {p.students?.surname} <span style={{ color: 'var(--charcoal-soft)' }}>({p.students?.class})</span></td>
-                        <td>{p.profiles?.full_name}<br /><span style={{ fontSize: '0.8rem', color: 'var(--charcoal-soft)' }}>{p.profiles?.phone}</span></td>
+                        <td>{p.profiles?.full_name}<br /><span style={{ fontSize: '0.8rem', color: 'var(--charcoal-soft)' }}>{p.profiles?.phone}</span>{p.profiles?.deleted_at && <><br /><span className="badge badge-failed">Account deleted</span></>}</td>
                         <td>{(p.payment_items || []).map((i) => i.category_name).join(', ')}</td>
                         <td>{formatNaira(p.amount)}</td>
                         <td>{formatDate(p.paid_at || p.created_at)}</td>
