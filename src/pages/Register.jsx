@@ -30,8 +30,17 @@ export default function Register() {
         emailRedirectTo: `${window.location.origin}/dashboard`,
       },
     });
-    if (signUpError) {
+   if (signUpError) {
       setError(signUpError.message);
+      setLoading(false);
+      return;
+    }
+
+    // Supabase doesn't return a clear error for an already-registered email
+    // (to avoid leaking which emails exist) — instead it returns a "user" with
+    // no identities attached. This is the documented way to detect that case.
+    if (data.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
+      setError('An account with this email already exists. Try logging in instead, or use "Forgot password" if you don\'t remember it.');
       setLoading(false);
       return;
     }
@@ -39,6 +48,7 @@ export default function Register() {
     // No need to insert a profile row here — a database trigger creates it
     // automatically from the full_name/phone/role passed in above, whether or
     // not email confirmation is required.
+    setLoading(false);
     setLoading(false);
     if (data.session) {
       navigate('/dashboard');
