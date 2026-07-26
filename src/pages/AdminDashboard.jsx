@@ -18,6 +18,7 @@ export default function AdminDashboard() {
   const [catError, setCatError] = useState('');
 
   const [allowlist, setAllowlist] = useState([]);
+  const [currentAdmins, setCurrentAdmins] = useState([]);
   const [newAdminEmail, setNewAdminEmail] = useState('');
   const [savingAdmin, setSavingAdmin] = useState(false);
   const [adminError, setAdminError] = useState('');
@@ -33,8 +34,25 @@ export default function AdminDashboard() {
       .order('created_at', { ascending: false });
     setPayments(pays || []);
 
-    const { data: allow } = await supabase.from('admin_allowlist').select('*').order('created_at', { ascending: false });
+const { data: allow } = await supabase.from('admin_allowlist').select('*').order('created_at', { ascending: false });
     setAllowlist(allow || []);
+
+    try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      const resp = await fetch('/.netlify/functions/list-admins', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
+      });
+      const result = await resp.json();
+      if (resp.ok) setCurrentAdmins(result.admins || []);
+    } catch {
+      // Non-fatal — the allowlist section below will still work either way.
+    }
 
     setLoading(false);
   }
@@ -171,10 +189,41 @@ export default function AdminDashboard() {
 
         {loading && <p>Loading…</p>}
 
-        {!loading && tab === 'categories' && (
+        {!loading && tab === 'admins' && (
           <>
             <div className="card" style={{ marginBottom: 24 }}>
-              <h3>Add a payment category</h3>
+              <h3>Current admins</h3>
+              <p style={{ marginBottom: 16 }}>Everyone who has admin access right now, however they got it.</p>
+              {currentAdmins.length === 0 ? (
+                <div className="empty-state">No admins found (or still loading).</div>
+              ) : (
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Email</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {currentAdmins.map((a) => (
+                      <tr key={a.id}>
+                        <td>{a.full_name || '—'} {a.isYou && <span className="pill-badge" style={{ background: 'var(--palm-soft)', color: 'var(--palm-deep)' }}>You</span>}</td>
+                        <td>{a.email}</td>
+                        <td>
+                          {!a.isYou && (
+                            <button className="btn btn-danger btn-sm" onClick={() => handleRemoveAdmin(a.email)}>Remove</button>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+
+            <div className="card" style={{ marginBottom: 24 }}>
+              <h3>Invite a new admin</h3>
               {catError && <div className="alert alert-error">{catError}</div>}
               <form onSubmit={handleAddCategory}>
                 <div className="form-row">
