@@ -30,7 +30,7 @@ export default function AdminDashboard() {
 
     const { data: pays } = await supabase
       .from('payments')
-      .select('*, students(first_name, surname, class), payment_items(*), profiles(full_name, phone)')
+      .select('*, students(first_name, surname, class), payment_items(*), profiles(full_name, phone, deleted_at)')
       .order('created_at', { ascending: false });
     setPayments(pays || []);
 
