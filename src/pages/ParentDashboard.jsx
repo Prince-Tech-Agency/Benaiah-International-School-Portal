@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
 import { useAuth } from '../lib/AuthContext';
 import { CLASSES, formatNaira, formatDate, statusBadgeClass } from '../lib/helpers';
@@ -8,6 +8,7 @@ import { downloadReceipt } from '../lib/receipt';
 
 export default function ParentDashboard() {
   const { user, profile } = useAuth();
+  const navigate = useNavigate();
   const [students, setStudents] = useState([]);
   const [payments, setPayments] = useState([]);
   const [showAddChild, setShowAddChild] = useState(false);
@@ -54,6 +55,32 @@ export default function ParentDashboard() {
       return;
     }
     loadData();
+  }
+
+  async function handleDeleteAccount() {
+    const typed = window.prompt(
+      'This permanently deletes your login and frees up your email for future use. Your children and payment/receipt history stay on file with the school for their records, but marked as belonging to a deleted account.\n\nType DELETE to confirm.'
+    );
+    if (typed !== 'DELETE') return;
+
+    try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      const resp = await fetch('/.netlify/functions/delete-my-account', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
+      });
+      const result = await resp.json();
+      if (!resp.ok) throw new Error(result.error || 'Could not delete your account.');
+      await supabase.auth.signOut();
+      navigate('/');
+    } catch (err) {
+      alert(err.message);
+    }
   }
 
   async function handleAddChild(e) {
@@ -193,6 +220,15 @@ export default function ParentDashboard() {
               </tbody>
             </table>
           )}
+        </div>
+
+        <div style={{ marginTop: 56, paddingTop: 24, borderTop: '1px solid var(--line)' }}>
+          <h3 style={{ fontSize: '1rem' }}>Danger zone</h3>
+          <p style={{ marginBottom: 14 }}>
+            Deleting your account permanently removes your login and frees up your email for future use.
+            Your children and payment/receipt history stay on file with the school for their records.
+          </p>
+          <button className="btn btn-danger btn-sm" onClick={handleDeleteAccount}>Delete my account</button>
         </div>
       </div>
     </div>
